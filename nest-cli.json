@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/ecom-microservices/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/ecom-microservices/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/ecom-microservices",
+  "projects": {
+    "ecom-microservices": {
+      "type": "application",
+      "root": "apps/ecom-microservices",
+      "entryFile": "main",
+      "sourceRoot": "apps/ecom-microservices/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ecom-microservices/tsconfig.app.json"
+      }
+    },
+    "user-service": {
+      "type": "application",
+      "root": "apps/user-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/user-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/user-service/tsconfig.app.json"
+      }
+    }
+  }
+}
