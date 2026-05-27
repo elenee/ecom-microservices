@@ -14,15 +14,34 @@ export class AuthController {
     return this.authService.signUp(signUpDto)
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post('sign-in')
+  @UseGuards(LocalAuthGuard)
   signIn(@Req() req){
-    return this.authService.signIn(req.user)
+    const userAgent = req.headers['user-agent']
+    return this.authService.signIn(req.user, userAgent)
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('me')
+  @UseGuards(JwtAuthGuard)
   currentUser(@User() userId: string ){
-    return this.authService.currectUser(userId)
+    return this.authService.currentUser(userId)
   }
+  
+  @Post('refresh-token')
+  accessRefreshToken(@Body('refreshToken') refreshToken: string, @Req() req){
+    const userAgent = req.headers['user-agent']
+    return this.authService.accessRefreshToken(refreshToken, userAgent)
+  }
+
+  @Post('sign-out')
+  signOut(@Body('refreshToken') refreshToken: string){
+    return this.authService.signOut(refreshToken)
+  }
+
+  @Post('sign-out-all')
+  @UseGuards(JwtAuthGuard)
+  signOutAll(@User() userId: string){
+    return this.authService.signOutAll(userId)
+  }
+
 }
