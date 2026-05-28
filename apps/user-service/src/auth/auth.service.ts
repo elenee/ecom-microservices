@@ -107,11 +107,9 @@ export class AuthService {
                 await this.prisma.refreshToken.deleteMany({where: {jti: decoded['jti']}})
             }
         }
-        return 'signed out successfully';
     }
 
     async signOutAll(userId: string){
         await this.prisma.refreshToken.deleteMany({where: {userId}})
-        return { message: 'Signed out from all devices' }
     }
 }
