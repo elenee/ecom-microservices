@@ -9,54 +9,54 @@ import { COOKIE_OPTIONS } from './constants/cookie.config';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('sign-up')
-  async signUp(@Body() signUpDto:SignUpDto){
+  async signUp(@Body() signUpDto: SignUpDto) {
     return this.authService.signUp(signUpDto)
   }
 
   @Post('sign-in')
   @UseGuards(LocalAuthGuard)
-  async signIn(@Req() req, @Res({passthrough: true}) res: Response){
+  async signIn(@Req() req, @Res({ passthrough: true }) res: Response) {
     const userAgent = req.headers['user-agent']
     const { accessToken, refreshToken } = await this.authService.signIn(req.user, userAgent);
-    
+
     res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS)
-    return {accessToken}
+    return { accessToken }
   }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  async currentUser(@User() userId: string ){
+  async currentUser(@User() userId: string) {
     return this.authService.currentUser(userId)
   }
-  
+
   @Post('refresh-token')
-  async accessRefreshToken(@Req() req, @Res({passthrough: true}) res: Response){
+  async accessRefreshToken(@Req() req, @Res({ passthrough: true }) res: Response) {
     const userAgent = req.headers['user-agent']
     const refreshToken = req.cookies['refreshToken']
 
-    const {accessToken, refreshToken: newRefreshToken } = await this.authService.accessRefreshToken(refreshToken, userAgent)
+    const { accessToken, refreshToken: newRefreshToken } = await this.authService.accessRefreshToken(refreshToken, userAgent)
     res.cookie('refreshToken', newRefreshToken, COOKIE_OPTIONS)
 
-    return {accessToken}
+    return { accessToken }
   }
 
   @Post('sign-out')
-  async signOut(@Req() req, @Res({ passthrough: true }) res: Response){
+  async signOut(@Req() req, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies['refreshToken']
     await this.authService.signOut(refreshToken)
-    
-    res.clearCookie('refreshToken', {...COOKIE_OPTIONS, maxAge: 0})
+
+    res.clearCookie('refreshToken', { ...COOKIE_OPTIONS, maxAge: 0 })
     return 'Signed out successfully'
   }
 
   @Post('sign-out-all')
   @UseGuards(JwtAuthGuard)
-  async signOutAll(@User() userId: string, @Res({ passthrough: true }) res: Response){
+  async signOutAll(@User() userId: string, @Res({ passthrough: true }) res: Response) {
     await this.authService.signOutAll(userId)
-    res.clearCookie('refreshToken', {...COOKIE_OPTIONS, maxAge: 0})
+    res.clearCookie('refreshToken', { ...COOKIE_OPTIONS, maxAge: 0 })
     return 'Signed out from all devices';
   }
 

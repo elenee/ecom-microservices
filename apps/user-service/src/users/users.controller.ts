@@ -4,10 +4,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../auth/decorators/user.decorator';
+import { RoleGuard } from '../auth/guards/role.guard';
+import { Role } from '../auth/decorators/roles.decorator';
+import { Roles } from '../auth/enums/role.enum';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -28,6 +31,13 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   update(@User() id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Role([Roles.ADMIN])
+  removeUser(@Param('id') id: string) {
+    return this.usersService.remove(id);
   }
 
   @Delete()

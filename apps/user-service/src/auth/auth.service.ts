@@ -6,60 +6,58 @@ import { SignUpDto } from './dto/sign-up.dto';
 import * as bcrypt from 'bcrypt';
 import { SignInDto } from './dto/sign-in.dto';
 import { randomUUID } from 'crypto';
+import { AuthUser } from './interfaces/auth-user.interface';
 
-interface AuthUser {
-  id: string;
-  email: string;
-}
 
 @Injectable()
 export class AuthService {
     constructor(
         private usersService: UsersService,
         private readonly jwtService: JwtService,
-        private prisma: PrismaService){}
+        private prisma: PrismaService) { }
 
-    async signUp(signUpDto: SignUpDto){
+    async signUp(signUpDto: SignUpDto) {
         const user = await this.usersService.findByEmail(signUpDto.email);
-        if(user) {
+        if (user) {
             throw new BadRequestException('User with this email already exists')
         }
 
         const hashedPasswd = await bcrypt.hash(signUpDto.password, 10);
-        await this.usersService.create({...signUpDto, password: hashedPasswd});
+        await this.usersService.create({ ...signUpDto, password: hashedPasswd });
         return 'User created successfully'
     }
 
-    async validateUser(signInDto: SignInDto){
+    async validateUser(signInDto: SignInDto) {
         const user = await this.usersService.findByEmail(signInDto.email)
-        if(!user) throw new UnauthorizedException('Invalid Credentials')
+        if (!user) throw new UnauthorizedException('Invalid Credentials')
         const isPasswValid = await bcrypt.compare(signInDto.password, user.password)
-        if(!isPasswValid) throw new UnauthorizedException('Invalid Credentials')
+        if (!isPasswValid) throw new UnauthorizedException('Invalid Credentials')
         return user
     }
 
-    async signIn(user: AuthUser, userAgent?: string){
+    async signIn(user: AuthUser, userAgent?: string) {
         const payload = {
-            sub: user.id
+            sub: user.id,
+            role: user.role
         }
-        const accessToken = this.jwtService.sign(payload, {expiresIn: '1h'})
+        const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' })
         const refreshToken = await this.createRefreshToken(user.id, userAgent);
 
-        return {accessToken, refreshToken}
+        return { accessToken, refreshToken }
     }
 
-    async currentUser(userId: string){
-        const user = await this.prisma.user.findUnique({where: {id: userId}})
-        if(!user) throw new NotFoundException('User not found');
-        const {password, ...rest} = user;
+    async currentUser(userId: string) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } })
+        if (!user) throw new NotFoundException('User not found');
+        const { password, ...rest } = user;
         return rest;
     }
 
-    async createRefreshToken(id: string, userAgent?: string){
+    async createRefreshToken(id: string, userAgent?: string) {
         const jti = randomUUID()
         const refreshToken = this.jwtService.sign(
-            {sub: id, jti},
-            {expiresIn: '7d'})
+            { sub: id, jti },
+            { expiresIn: '7d' })
 
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 7)
@@ -74,42 +72,42 @@ export class AuthService {
         return refreshToken;
     }
 
-    async accessRefreshToken(refreshToken: string, userAgent?:string){
-        if(!refreshToken) throw new UnauthorizedException()
+    async accessRefreshToken(refreshToken: string, userAgent?: string) {
+        if (!refreshToken) throw new UnauthorizedException()
         try {
             const payload = this.jwtService.verify(refreshToken);
             const savedToken = await this.prisma.refreshToken.findUnique({
-                where: {jti: payload.jti}
+                where: { jti: payload.jti }
             })
-            if(!savedToken) throw new UnauthorizedException();
+            if (!savedToken) throw new UnauthorizedException();
 
             await this.prisma.refreshToken.delete({
-                where: {jti: payload.jti}
+                where: { jti: payload.jti }
             })
-            const accessToken = this.jwtService.sign({sub: payload.sub}, {expiresIn: '1h'})
+            const accessToken = this.jwtService.sign({ sub: payload.sub, role: payload.role }, { expiresIn: '1h' })
             const newRefreshToken = await this.createRefreshToken(payload.sub, userAgent)
 
-            return {accessToken, refreshToken: newRefreshToken}
+            return { accessToken, refreshToken: newRefreshToken }
         } catch {
             throw new UnauthorizedException()
         }
     }
 
-    async signOut(refreshToken: string){
-        if(!refreshToken) throw new UnauthorizedException()
+    async signOut(refreshToken: string) {
+        if (!refreshToken) throw new UnauthorizedException()
         try {
             const payload = this.jwtService.verify(refreshToken)
-            await this.prisma.refreshToken.delete({where: {jti: payload.jti}})
+            await this.prisma.refreshToken.delete({ where: { jti: payload.jti } })
             return 'signed out successfully'
-        } catch(error) {
+        } catch (error) {
             const decoded = this.jwtService.decode(refreshToken)
-            if(decoded && decoded['jti']){
-                await this.prisma.refreshToken.deleteMany({where: {jti: decoded['jti']}})
+            if (decoded && decoded['jti']) {
+                await this.prisma.refreshToken.deleteMany({ where: { jti: decoded['jti'] } })
             }
         }
     }
 
-    async signOutAll(userId: string){
-        await this.prisma.refreshToken.deleteMany({where: {userId}})
+    async signOutAll(userId: string) {
+        await this.prisma.refreshToken.deleteMany({ where: { userId } })
     }
 }
