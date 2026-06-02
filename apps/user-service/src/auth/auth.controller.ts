@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
-import { User } from './decorators/user.decorator';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { LocalAuthGuard } from './guards/local-auth.guard';
 import type { Response } from 'express';
-import { COOKIE_OPTIONS } from './constants/cookie.config';
+import { LocalAuthGuard } from '@app/auth/guards/local-auth.guard';
+import { COOKIE_OPTIONS } from '@app/auth/constants/cookie.config';
+import { JwtAuthGuard } from '@app/auth/guards/jwt-auth.guard';
+import { User } from '@app/auth/decorators/user.decorator';
 
 @Controller('auth')
 export class AuthController {

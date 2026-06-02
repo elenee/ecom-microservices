@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { LocalStrategy } from './strategy/local.strategy';
+import { UsersModule } from 'apps/user-service/src/users/users.module';
+import { AuthController } from 'apps/user-service/src/auth/auth.controller';
+import { AuthService } from 'apps/user-service/src/auth/auth.service';
 
 @Module({
   imports: [JwtModule.registerAsync({
