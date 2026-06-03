@@ -10,6 +10,15 @@
   "monorepo": true,
   "root": "apps/ecom-microservices",
   "projects": {
+    "auth": {
+      "type": "library",
+      "root": "libs/auth",
+      "entryFile": "index",
+      "sourceRoot": "libs/auth/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/auth/tsconfig.lib.json"
+      }
+    },
     "ecom-microservices": {
       "type": "application",
       "root": "apps/ecom-microservices",
@@ -17,6 +26,24 @@
       "sourceRoot": "apps/ecom-microservices/src",
       "compilerOptions": {
         "tsConfigPath": "apps/ecom-microservices/tsconfig.app.json"
+      }
+    },
+    "product-service": {
+      "type": "application",
+      "root": "apps/product-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/product-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/product-service/tsconfig.app.json"
+      }
+    },
+    "s3": {
+      "type": "library",
+      "root": "libs/s3",
+      "entryFile": "index",
+      "sourceRoot": "libs/s3/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/s3/tsconfig.lib.json"
       }
     },
     "user-service": {
