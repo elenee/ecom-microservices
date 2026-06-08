@@ -63,7 +63,7 @@ export class ProductsService {
     if (!product) throw new NotFoundException();
     if (coverImage) {
       const key = `products/${product.id}/${Date.now()}-${coverImage.originalname}`;
-      const url = await this.awsS3Service.uploadFile(key, coverImage.buffer);
+      const url = await this.awsS3Service.uploadFile(key, coverImage.buffer, coverImage.mimetype);
 
       const existingCover = await this.prisma.productImage.findFirst({
         where: { productId: id, isPrimary: true },
@@ -103,7 +103,7 @@ export class ProductsService {
     Promise.all(
       images.map(async (file) => {
         const key = `products/${product.id}/${Date.now()}-${file.originalname}`;
-        const url = await this.awsS3Service.uploadFile(key, file.buffer);
+        const url = await this.awsS3Service.uploadFile(key, file.buffer, file.mimetype);
         return this.prisma.productImage.create({
           data: { url, key, productId: product.id, isPrimary: false },
         });
