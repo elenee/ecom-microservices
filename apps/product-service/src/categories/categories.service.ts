@@ -73,7 +73,7 @@ export class CategoriesService {
 
 
       const key = `categories/${category.id}/${Date.now()}-${image.originalname}`;
-      const url = await this.awsS3Service.uploadFile(key, resizedBuffer)
+      const url = await this.awsS3Service.uploadFile(key, resizedBuffer, image.buffer)
 
       const existingCover = await this.prisma.categoryImage.findFirst({ where: { categoryId: id } })
       if (existingCover) {

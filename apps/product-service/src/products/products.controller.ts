@@ -8,6 +8,7 @@ import { JwtAuthGuard } from '@app/auth/guards/jwt-auth.guard';
 import { RoleGuard } from '@app/auth/guards/role.guard';
 import { Role } from '@app/auth/decorators/roles.decorator';
 import { Roles } from '@app/auth/enums/role.enum';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller('products')
 export class ProductsController {
@@ -86,5 +87,15 @@ export class ProductsController {
   @Delete(':id/images/:imageId')
   removeImages(@Param('id') id: string, @Param('imageId') imageId: string) {
     return this.productsService.removeImages(id, imageId);
+  }
+
+  @MessagePattern('get_product_price')
+  async getProductPrice(@Payload() productId: string) {
+    return this.productsService.findOne(productId);
+  }
+
+  @MessagePattern('get_product')
+  async getProductById(@Payload() prductId: string) {
+    return this.productsService.findOne(prductId)
   }
 }

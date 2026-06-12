@@ -130,5 +130,4 @@ export class ProductsService {
       data: { ...createProductVariantDto, productId: id }
     })
   }
-
 }

@@ -19,6 +19,15 @@
         "tsConfigPath": "libs/auth/tsconfig.lib.json"
       }
     },
+    "cart-service": {
+      "type": "application",
+      "root": "apps/cart-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/cart-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/cart-service/tsconfig.app.json"
+      }
+    },
     "ecom-microservices": {
       "type": "application",
       "root": "apps/ecom-microservices",
