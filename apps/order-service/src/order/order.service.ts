@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import { firstValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '../prisma/prisma.service';
-import { OrderStatus } from 'apps/order-service/generated/prisma';
+import { OrderStatus, PaymentStatus } from 'apps/order-service/generated/prisma';
 import { UpdateStatusDto } from './dto/update-status.dto';
 
 @Injectable()
@@ -83,6 +83,19 @@ export class OrderService {
     const order = await this.prisma.order.findUnique({ where: { id: orderId } });
     if (!order) throw new NotFoundException('Order not found');
     return await this.prisma.order.update({ where: { id: orderId }, data: { status: updateStatusDto.status } })
+  }
+
+  async updatePaymentStatus(orderId: string, paymentStatus: PaymentStatus) {
+    return this.prisma.order.update({
+      where: { id: orderId },
+      data: { paymentStatus }
+    });
+  }
+
+  async findById(orderId: string) {
+    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) throw new NotFoundException('Order not found');
+    return order;
   }
 
 }

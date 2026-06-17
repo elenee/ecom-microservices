@@ -5,4 +5,5 @@ concurrently([
   { command: 'nest start user-service --watch', name: 'USER', prefixColor: 'magenta' },
   { command: 'nest start cart-service --watch', name: 'CART', prefixColor: 'green' },
   { command: 'nest start order-service --watch', name: 'ORDER', prefixColor: 'yellow' },
+  { command: 'nest start payment-service --watch', name: 'PAYMENT', prefixColor: 'red' },
 ]);
