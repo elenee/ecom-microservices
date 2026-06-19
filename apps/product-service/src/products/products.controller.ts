@@ -8,11 +8,15 @@ import { JwtAuthGuard } from '@app/auth/guards/jwt-auth.guard';
 import { RoleGuard } from '@app/auth/guards/role.guard';
 import { Role } from '@app/auth/decorators/roles.decorator';
 import { Roles } from '@app/auth/enums/role.enum';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) { }
+  constructor(
+    private readonly productsService: ProductsService,
+    private prisma: PrismaService
+  ) { }
 
   @Post()
   @UseGuards(JwtAuthGuard, RoleGuard)
@@ -97,5 +101,27 @@ export class ProductsController {
   @MessagePattern('get_product')
   async getProductById(@Payload() prductId: string) {
     return this.productsService.findOne(prductId)
+  }
+
+  @MessagePattern('decrement_stock')
+  async decrementStock(@Payload() data: { productId: string, quantity: number }) {
+    const updated = await this.prisma.product.updateMany({
+      where: { id: data.productId, stock: { gte: data.quantity } },
+      data: { stock: { decrement: data.quantity } },
+    });
+
+    if (updated.count === 0) {
+      throw new RpcException('Insufficient stock');
+    }
+
+    return updated;
+  }
+
+  @MessagePattern('restock')
+  async restock(@Payload() data: { productId: string, quantity: number }) {
+    return this.prisma.product.update({
+      where: { id: data.productId },
+      data: { stock: { increment: data.quantity } },
+    });
   }
 }

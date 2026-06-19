@@ -24,6 +24,24 @@ import { PrismaModule } from '../prisma/prisma.module';
         queueOptions: { durable: true },
       },
     },
+    {
+      name: 'USER_SERVICE',
+      transport: Transport.RMQ,
+      options: {
+        urls: ['amqp://localhost:5672'],
+        queue: 'user_queue',
+        queueOptions: { durable: true }
+      }
+    },
+    {
+      name: 'NOTIFICATION_SERVICE',
+      transport: Transport.RMQ,
+      options: {
+        urls: ['amqp://localhost:5672'],
+        queue: 'notification_queue',
+        queueOptions: { durable: true }
+      }
+    }
   ])],
   controllers: [OrdersController],
   providers: [OrderService],

@@ -7,6 +7,7 @@ import { JwtAuthGuard } from '@app/auth/guards/jwt-auth.guard';
 import { RoleGuard } from '@app/auth/guards/role.guard';
 import { Role } from '@app/auth/decorators/roles.decorator';
 import { Roles } from '@app/auth/enums/role.enum';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller('users')
 export class UsersController {
@@ -44,5 +45,10 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   remove(@User() id: string) {
     return this.usersService.remove(id);
+  }
+
+  @MessagePattern('get_user')
+  async getUserById(@Payload() userId: string) {
+    return this.usersService.findOne(userId);
   }
 }

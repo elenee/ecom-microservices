@@ -50,12 +50,11 @@ export class OrdersController {
 
   @EventPattern('payment_succeeded')
   async handlePaymentSucceeded(@Payload() orderId: string) {
-    return this.orderService.updatePaymentStatus(orderId, 'PAID');
+    return this.orderService.handlePaymentSuccess(orderId);
   }
 
   @EventPattern('payment_failed')
   async handlePaymentFailed(@Payload() orderId: string) {
-    return this.orderService.updatePaymentStatus(orderId, 'FAILED');
+    return this.orderService.handlePaymentFailure(orderId);
   }
-
 }
