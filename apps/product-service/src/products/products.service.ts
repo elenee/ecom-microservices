@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import slugify from 'slugify'
 import { S3Service } from '@app/s3';
 import { CreateProductVariantDto } from './dto/cretae-product-variant.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma } from 'apps/product-service/generated/client';
 
 
 @Injectable()

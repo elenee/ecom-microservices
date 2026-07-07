@@ -9,17 +9,29 @@ import Stripe from 'stripe';
 export class PaymentsService {
   private readonly stripeService: any
   private readonly stripeWebhookSecret: string
+  private readonly isMock: boolean;
+
 
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService,
     @Inject('ORDER_SERVICE') private orderClient: ClientProxy
   ) {
+    this.isMock = this.configService.get<string>('PAYMENT_MODE') === 'mock';
+
     const stripeSecretKey = this.configService.get<string>('STRIPE_SECRET_KEY')
     this.stripeWebhookSecret = this.configService.get<string>(
       'STRIPE_WEBHOOK_SECRET', '')
 
-    this.stripeService = new Stripe(stripeSecretKey!, {});
+    if (!this.isMock) {
+      const stripeKey = this.configService.get<string>('STRIPE_SECRET_KEY');
+
+      if (!stripeKey) {
+        throw new Error('STRIPE_SECRET_KEY is missing from environment variables');
+      }
+
+      this.stripeService = new Stripe(stripeSecretKey!, {});
+    }
   }
 
 
@@ -31,6 +43,11 @@ export class PaymentsService {
     )
 
     if (!order) throw new NotFoundException('Order not found');
+    if (this.isMock) {
+      return {
+        clientSecret: 'mock_client_secret',
+      };
+    }
 
     stripeIntent = await this.stripeService.paymentIntents.create({
       amount: Math.round(Number(order.totalAmount) * 100),

@@ -7,7 +7,11 @@ export class NotificationService {
     private readonly isMock: boolean;
 
     constructor(private configService: ConfigService) {
+        console.log('EMAIL_MODE:', this.configService.get('EMAIL_MODE'));
+
         this.isMock = this.configService.get<string>('EMAIL_MODE') === 'mock';
+
+        console.log('isMock:', this.isMock);
 
         if (!this.isMock) {
             const apiKey = this.configService.get<string>('SENDGRID_API_KEY');

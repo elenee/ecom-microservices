@@ -2,14 +2,16 @@ import { NestFactory } from '@nestjs/core';
 import { CartServiceModule } from './cart-service.module';
 import { ValidationPipe } from '@nestjs/common';
 import { Transport } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(CartServiceModule);
+  const configService = app.get(ConfigService);
   app.useGlobalPipes(new ValidationPipe())
   app.connectMicroservice({
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://localhost:5672'],
+      urls: [configService.get<string>('RABBITMQ_URL')!],
       queue: 'cart_queue',
       queueOptions: { durable: true },
     },
