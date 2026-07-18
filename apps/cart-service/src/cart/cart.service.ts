@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, NotFoundException, Unauthorize
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { firstValueFrom } from 'rxjs';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class CartService {
@@ -24,7 +24,7 @@ export class CartService {
     const product = await firstValueFrom(
       this.productClient.send('get_product', addToCartDto.productId)
     )
-    if (!product) throw new NotFoundException('Product not found');
+    if (!product) throw new RpcException('Product not found');
     const price = product.price
 
     const cart = await this.prisma.cart.findUnique({ where: { userId } })
