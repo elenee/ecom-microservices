@@ -1,84 +1,106 @@
+x-service-template: &service-template
+  build:
+    context: .
+    dockerfile: Dockerfile
+  env_file:
+    - .env
+  depends_on:
+    - rabbitmq
+    - postgres
+
 services:
   user-service:
+    << : *service-template
     build:
       context: .
       dockerfile: Dockerfile
       args:
         - SERVICE=user-service
     ports:
-      - "3000:3000"
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
+      - "${USER_SERVICE_PORT:-3000}:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/user_service_db
+
 
   product-service:
+    << : *service-template
     build: 
       context: .
       dockerfile: Dockerfile
       args:
         - SERVICE=product-service
     ports:
-      - "3001:3000"
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
+      - "${PRODUCT_SERVICE_PORT:-3001}:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/product_service_db
+
 
   cart-service:
+    << : *service-template
     build: 
       context: .
       dockerfile: Dockerfile
       args:
         - SERVICE=cart-service
     ports:
-      - "3002:3000"
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
+      - "${CART_SERVICE_PORT:-3002}:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/cart_service_db
+
+
 
   order-service:
+    << : *service-template
     build: 
       context: .
       dockerfile: Dockerfile
       args:
         - SERVICE=order-service
     ports:
-      - "3003:3000"
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
+      - "${ORDER_SERVICE_PORT:-3003}:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/order_service_db
+
 
   payment-service:
+    << : *service-template
     build: 
       context: .
       dockerfile: Dockerfile
       args:
         - SERVICE=payment-service
     ports:
-      - "3004:3000"
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
+      - "${PAYMENT_SERVICE_PORT:-3004}:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/payments_service_db
+
 
   notification-service:
+    << : *service-template
     build: 
       context: .
       dockerfile: Dockerfile
       args:
         - SERVICE=notification-service
     ports:
-      - "3005:3000"
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
+      - "${NOTIFICATION_SERVICE_PORT:-3005}:3000"
 
   rabbitmq:
     image: rabbitmq:3-management
     ports:
       - "5672:5672"
       - "15672:15672"
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+
+volumes:
+  postgres_data:
