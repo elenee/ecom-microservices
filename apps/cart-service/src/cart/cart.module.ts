@@ -12,7 +12,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       useFactory: (configService: ConfigService) => ({
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:5672'],
+          urls: [configService.get<string>('RABBITMQ_URL')!],
           queue: 'product_queue',
           queueOptions: { durable: true },
         },
