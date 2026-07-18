@@ -1,12 +1,11 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import slugify from 'slugify'
 import { S3Service } from '@app/s3';
 import { CreateProductVariantDto } from './dto/cretae-product-variant.dto';
-import { Prisma } from 'apps/product-service/generated/client';
-
+import { Prisma } from 'apps/product-service/generated/prisma';
 
 @Injectable()
 export class ProductsService {
@@ -19,7 +18,7 @@ export class ProductsService {
 
       const allFiles = [
         ...(coverImage ? [{ file: coverImage, isPrimary: true }] : []),
-        ...(images.map(file => ({ file, isPrimary: false })))
+        ...((images ?? []).map(file => ({ file, isPrimary: false })))
       ]
 
       await Promise.all(
@@ -39,6 +38,9 @@ export class ProductsService {
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
         throw new ConflictException(`Product with this ${e.meta?.target} already exists`);
+      }
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2003') {
+        throw new BadRequestException(`Invalid reference: ${e.meta?.field_name ?? 'related entity'} does not exist`);
       }
       throw e;
     }
@@ -100,7 +102,7 @@ export class ProductsService {
   async addImages(id: string, images: Express.Multer.File[]) {
     const product = await this.prisma.product.findUnique({ where: { id } })
     if (!product) throw new NotFoundException();
-    Promise.all(
+    await Promise.all(
       images.map(async (file) => {
         const key = `products/${product.id}/${Date.now()}-${file.originalname}`;
         const url = await this.awsS3Service.uploadFile(key, file.buffer, file.mimetype);
