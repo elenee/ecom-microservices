@@ -7,7 +7,7 @@ import { JwtAuthGuard } from '@app/auth/guards/jwt-auth.guard';
 import { RoleGuard } from '@app/auth/guards/role.guard';
 import { Role } from '@app/auth/decorators/roles.decorator';
 import { Roles } from '@app/auth/enums/role.enum';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 
 @Controller('users')
 export class UsersController {
@@ -49,6 +49,10 @@ export class UsersController {
 
   @MessagePattern('get_user')
   async getUserById(@Payload() userId: string) {
-    return this.usersService.findOne(userId);
+    try {
+      return await this.usersService.findOne(userId);
+    } catch (error: any) {
+      throw new RpcException(error.message ?? 'User lookup failed');
+    }
   }
 }

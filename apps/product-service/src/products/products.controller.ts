@@ -95,12 +95,20 @@ export class ProductsController {
 
   @MessagePattern('get_product_price')
   async getProductPrice(@Payload() productId: string) {
-    return this.productsService.findOne(productId);
+    try {
+      return await this.productsService.findOne(productId);
+    } catch (error: any) {
+      throw new RpcException(error.message ?? 'Product lookup failed');
+    }
   }
 
   @MessagePattern('get_product')
-  async getProductById(@Payload() prductId: string) {
-    return this.productsService.findOne(prductId)
+  async getProductById(@Payload() productId: string) {
+    try {
+      return await this.productsService.findOne(productId);
+    } catch (error: any) {
+      throw new RpcException(error.message ?? 'Product lookup failed');
+    }
   }
 
   @MessagePattern('decrement_stock')

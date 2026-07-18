@@ -4,7 +4,7 @@ import { AddToCartDto } from './dto/add-to-cart.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item-dto';
 import { JwtAuthGuard } from '@app/auth/guards/jwt-auth.guard';
 import { User } from '@app/auth/decorators/user.decorator';
-import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 
 @Controller('cart')
 export class CartController {
@@ -42,11 +42,15 @@ export class CartController {
 
   @MessagePattern('get_cart')
   async getCartByUserId(@Payload() userId: string) {
-    return this.cartService.getCart(userId);
+    try {
+      return await this.cartService.getCart(userId);
+    } catch (error: any) {
+      throw new RpcException(error.message ?? "Cart lookup failed")
+    }
   }
 
   @EventPattern('clear_cart')
   async handleClearCart(@Payload() userId: string) {
-    return this.cartService.clearCart(userId);
+    return await this.cartService.clearCart(userId);
   }
 }

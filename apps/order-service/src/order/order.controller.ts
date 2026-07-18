@@ -6,7 +6,7 @@ import { UpdateStatusDto } from './dto/update-status.dto';
 import { Role } from '@app/auth/decorators/roles.decorator';
 import { Roles } from '@app/auth/enums/role.enum';
 import { RoleGuard } from '@app/auth/guards/role.guard';
-import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 
 @Controller('order')
 export class OrdersController {
@@ -45,7 +45,11 @@ export class OrdersController {
 
   @MessagePattern('get_order')
   async getOrderById(@Payload() id: string) {
-    return this.orderService.findById(id);
+    try {
+      return await this.orderService.findById(id);
+    } catch (error: any) {
+      throw new RpcException(error.message ?? 'Order lookup failed')
+    }
   }
 
   @EventPattern('payment_succeeded')
