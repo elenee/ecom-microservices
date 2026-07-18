@@ -5,8 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import slugify from 'slugify'
 import { S3Service } from '@app/s3';
 import sharp from 'sharp';
-import { Prisma } from 'apps/product-service/generated/client';
-
+import { Prisma } from 'apps/product-service/generated/prisma';
 
 @Injectable()
 export class CategoriesService {
