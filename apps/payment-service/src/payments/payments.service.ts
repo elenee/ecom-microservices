@@ -44,8 +44,25 @@ export class PaymentsService {
 
     if (!order) throw new NotFoundException('Order not found');
     if (this.isMock) {
+      const mockPaymentId = `mock_${orderId}`;
+      await this.prisma.payment.upsert({
+        where: { orderId },
+        update: {
+          stripePaymentId: mockPaymentId,
+          status: 'PENDING',
+          amount: order.totalAmount
+        },
+        create: {
+          orderId,
+          userId,
+          stripePaymentId: mockPaymentId,
+          status: 'PENDING',
+          amount: order.totalAmount
+        }
+      });
       return {
         clientSecret: 'mock_client_secret',
+        paymentIntentId: mockPaymentId,
       };
     }
 
@@ -116,6 +133,21 @@ export class PaymentsService {
   }
 
   async confirmPayment(paymentIntentId: string) {
+    if (this.isMock) {
+      const payment = await this.prisma.payment.findFirst({
+        where: { stripePaymentId: paymentIntentId },
+      });
+      if (!payment) throw new NotFoundException('Payment not found');
+
+      await this.prisma.payment.update({
+        where: { id: payment.id },
+        data: { status: 'SUCCEEDED' },
+      });
+      this.orderClient.emit('payment_succeeded', payment.orderId);
+
+      return { status: 'succeeded' };
+    }
+
     const paymentIntent = await this.stripeService.paymentIntents.confirm(
       paymentIntentId,
       { payment_method: 'pm_card_visa' }
