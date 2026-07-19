@@ -5,9 +5,14 @@ import { NotificationModule } from './notification/notification.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env', 'apps/notification-service/.env'] }),
-    NotificationModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env', 'apps/notification-service/.env'],
+    }),
+    NotificationModule,
+  ],
   controllers: [NotificationServiceController],
   providers: [NotificationServiceService],
 })
-export class NotificationServiceModule { }
+export class NotificationServiceModule {}

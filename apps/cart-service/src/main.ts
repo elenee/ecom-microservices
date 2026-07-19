@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
   const app = await NestFactory.create(CartServiceModule);
   const configService = app.get(ConfigService);
-  app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalPipes(new ValidationPipe());
   app.connectMicroservice({
     transport: Transport.RMQ,
     options: {
@@ -15,8 +15,8 @@ async function bootstrap() {
       queue: 'cart_queue',
       queueOptions: { durable: true },
     },
-  })
-  await app.startAllMicroservices()
+  });
+  await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

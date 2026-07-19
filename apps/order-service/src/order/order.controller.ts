@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { User } from '@app/auth/decorators/user.decorator';
 import { JwtAuthGuard } from '@app/auth/guards/jwt-auth.guard';
 import { OrderService } from './order.service';
@@ -6,11 +14,16 @@ import { UpdateStatusDto } from './dto/update-status.dto';
 import { Role } from '@app/auth/decorators/roles.decorator';
 import { Roles } from '@app/auth/enums/role.enum';
 import { RoleGuard } from '@app/auth/guards/role.guard';
-import { EventPattern, MessagePattern, Payload, RpcException } from '@nestjs/microservices';
+import {
+  EventPattern,
+  MessagePattern,
+  Payload,
+  RpcException,
+} from '@nestjs/microservices';
 
 @Controller('order')
 export class OrdersController {
-  constructor(private readonly orderService: OrderService) { }
+  constructor(private readonly orderService: OrderService) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -21,7 +34,7 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   @Get()
   findAll(@User() userId: string) {
-    return this.orderService.getOrders(userId)
+    return this.orderService.getOrders(userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -33,14 +46,17 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Role([Roles.ADMIN])
   @Patch('status/:id')
-  updateOrderStatus(@Param('id') orderId: string, @Body() updateStatusDto: UpdateStatusDto) {
+  updateOrderStatus(
+    @Param('id') orderId: string,
+    @Body() updateStatusDto: UpdateStatusDto,
+  ) {
     return this.orderService.updateOrderStatus(orderId, updateStatusDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   cancelOrder(@User() userId: string, @Param('id') orderId: string) {
-    return this.orderService.cancelOrder(userId, orderId)
+    return this.orderService.cancelOrder(userId, orderId);
   }
 
   @MessagePattern('get_order')
@@ -48,7 +64,7 @@ export class OrdersController {
     try {
       return await this.orderService.findById(id);
     } catch (error: any) {
-      throw new RpcException(error.message ?? 'Order lookup failed')
+      throw new RpcException(error.message ?? 'Order lookup failed');
     }
   }
 

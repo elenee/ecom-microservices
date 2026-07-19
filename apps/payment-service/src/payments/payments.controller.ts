@@ -1,4 +1,13 @@
-import { Controller, Post, Param, Delete, UseGuards, Headers, Req, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Param,
+  Delete,
+  UseGuards,
+  Headers,
+  Req,
+  BadRequestException,
+} from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '@app/auth/guards/jwt-auth.guard';
 import { User } from '@app/auth/decorators/user.decorator';
@@ -6,7 +15,7 @@ import type { RawBodyRequest } from '@nestjs/common';
 
 @Controller('payments')
 export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService) { }
+  constructor(private readonly paymentsService: PaymentsService) {}
 
   @UseGuards(JwtAuthGuard)
   @Post('checkout/:orderId')
@@ -17,7 +26,7 @@ export class PaymentsController {
   @Post('webhook')
   handleWebhook(
     @Headers('stripe-signature') signature: string,
-    @Req() req: RawBodyRequest<Request>
+    @Req() req: RawBodyRequest<Request>,
   ) {
     if (!req.rawBody) throw new BadRequestException('Missing raw body');
     return this.paymentsService.handleWebhook(signature, req.rawBody);

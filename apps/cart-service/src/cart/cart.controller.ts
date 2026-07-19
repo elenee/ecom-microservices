@@ -1,14 +1,29 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CartService } from './cart.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item-dto';
 import { JwtAuthGuard } from '@app/auth/guards/jwt-auth.guard';
 import { User } from '@app/auth/decorators/user.decorator';
-import { EventPattern, MessagePattern, Payload, RpcException } from '@nestjs/microservices';
+import {
+  EventPattern,
+  MessagePattern,
+  Payload,
+  RpcException,
+} from '@nestjs/microservices';
 
 @Controller('cart')
 export class CartController {
-  constructor(private readonly cartService: CartService) { }
+  constructor(private readonly cartService: CartService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get()
@@ -24,8 +39,16 @@ export class CartController {
 
   @UseGuards(JwtAuthGuard)
   @Patch('items/:itemId')
-  updateItem(@User() userId: string, @Param('itemId') itemId: string, @Body() updateCartDto: UpdateCartItemDto) {
-    return this.cartService.updateItemQuantity(userId, itemId, updateCartDto.quantity);
+  updateItem(
+    @User() userId: string,
+    @Param('itemId') itemId: string,
+    @Body() updateCartDto: UpdateCartItemDto,
+  ) {
+    return this.cartService.updateItemQuantity(
+      userId,
+      itemId,
+      updateCartDto.quantity,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -45,7 +68,7 @@ export class CartController {
     try {
       return await this.cartService.getCart(userId);
     } catch (error: any) {
-      throw new RpcException(error.message ?? "Cart lookup failed")
+      throw new RpcException(error.message ?? 'Cart lookup failed');
     }
   }
 

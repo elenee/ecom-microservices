@@ -9,16 +9,18 @@ import { ProductsModule } from './products/products.module';
 import { AuthModule } from '@app/auth';
 
 @Module({
-  imports: [ConfigModule.forRoot({
-    isGlobal: true, envFilePath: ['.env', 'apps/product-service/.env']
-  }),
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env', 'apps/product-service/.env'],
+    }),
     PrismaModule,
     CategoriesModule,
     ProductsModule,
     S3Module,
-    AuthModule
+    AuthModule,
   ],
   controllers: [ProductServiceController],
   providers: [ProductServiceService],
 })
-export class ProductServiceModule { }
+export class ProductServiceModule {}

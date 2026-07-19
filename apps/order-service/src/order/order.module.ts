@@ -18,7 +18,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             queue: 'cart_queue',
             queueOptions: { durable: true },
           },
-        })
+        }),
       },
       {
         name: 'PRODUCT_SERVICE',
@@ -30,7 +30,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             queue: 'product_queue',
             queueOptions: { durable: true },
           },
-        })
+        }),
       },
       {
         name: 'USER_SERVICE',
@@ -42,7 +42,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             queue: 'user_queue',
             queueOptions: { durable: true },
           },
-        })
+        }),
       },
       {
         name: 'NOTIFICATION_SERVICE',
@@ -54,10 +54,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             queue: 'notification_queue',
             queueOptions: { durable: true },
           },
-        })
+        }),
       },
-    ])],
+    ]),
+  ],
   controllers: [OrdersController],
   providers: [OrderService],
 })
-export class OrdersModule { }
+export class OrdersModule {}

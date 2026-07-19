@@ -1,8 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UseGuards, UploadedFile, UploadedFiles } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  UseGuards,
+  UploadedFile,
+  UploadedFiles,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
 import { CreateProductVariantDto } from './dto/cretae-product-variant.dto';
 import { JwtAuthGuard } from '@app/auth/guards/jwt-auth.guard';
 import { RoleGuard } from '@app/auth/guards/role.guard';
@@ -15,8 +31,8 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ProductsController {
   constructor(
     private readonly productsService: ProductsService,
-    private prisma: PrismaService
-  ) { }
+    private prisma: PrismaService,
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RoleGuard)
@@ -27,12 +43,19 @@ export class ProductsController {
       { name: 'images', maxCount: 100 },
     ]),
   )
-  create(@Body() createProductDto: CreateProductDto, @UploadedFiles()
-  files: {
-    coverImage: Express.Multer.File[];
-    images?: Express.Multer.File[];
-  },) {
-    return this.productsService.create(createProductDto, files.coverImage?.[0], files.images ?? [],);
+  create(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFiles()
+    files: {
+      coverImage: Express.Multer.File[];
+      images?: Express.Multer.File[];
+    },
+  ) {
+    return this.productsService.create(
+      createProductDto,
+      files.coverImage?.[0],
+      files.images ?? [],
+    );
   }
 
   @Get()
@@ -54,7 +77,11 @@ export class ProductsController {
 
   @Patch(':id')
   @UseInterceptors(FileInterceptor('file'))
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @UploadedFile() file: Express.Multer.File,) {
+  update(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     return this.productsService.update(id, updateProductDto, file);
   }
 
@@ -112,7 +139,9 @@ export class ProductsController {
   }
 
   @MessagePattern('decrement_stock')
-  async decrementStock(@Payload() data: { productId: string, quantity: number }) {
+  async decrementStock(
+    @Payload() data: { productId: string; quantity: number },
+  ) {
     const updated = await this.prisma.product.updateMany({
       where: { id: data.productId, stock: { gte: data.quantity } },
       data: { stock: { decrement: data.quantity } },
@@ -126,7 +155,7 @@ export class ProductsController {
   }
 
   @MessagePattern('restock')
-  async restock(@Payload() data: { productId: string, quantity: number }) {
+  async restock(@Payload() data: { productId: string; quantity: number }) {
     return this.prisma.product.update({
       where: { id: data.productId },
       data: { stock: { increment: data.quantity } },

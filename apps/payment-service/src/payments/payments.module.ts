@@ -18,11 +18,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             queue: 'order_queue',
             queueOptions: { durable: true },
           },
-        })
+        }),
       },
-    ])
+    ]),
   ],
   controllers: [PaymentsController],
   providers: [PaymentsService],
 })
-export class PaymentsModule { }
+export class PaymentsModule {}

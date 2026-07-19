@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
@@ -7,40 +12,42 @@ import Stripe from 'stripe';
 
 @Injectable()
 export class PaymentsService {
-  private readonly stripeService: any
-  private readonly stripeWebhookSecret: string
+  private readonly stripeService: any;
+  private readonly stripeWebhookSecret: string;
   private readonly isMock: boolean;
-
 
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService,
-    @Inject('ORDER_SERVICE') private orderClient: ClientProxy
+    @Inject('ORDER_SERVICE') private orderClient: ClientProxy,
   ) {
     this.isMock = this.configService.get<string>('PAYMENT_MODE') === 'mock';
 
-    const stripeSecretKey = this.configService.get<string>('STRIPE_SECRET_KEY')
+    const stripeSecretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     this.stripeWebhookSecret = this.configService.get<string>(
-      'STRIPE_WEBHOOK_SECRET', '')
+      'STRIPE_WEBHOOK_SECRET',
+      '',
+    );
 
     if (!this.isMock) {
       const stripeKey = this.configService.get<string>('STRIPE_SECRET_KEY');
 
       if (!stripeKey) {
-        throw new Error('STRIPE_SECRET_KEY is missing from environment variables');
+        throw new Error(
+          'STRIPE_SECRET_KEY is missing from environment variables',
+        );
       }
 
       this.stripeService = new Stripe(stripeSecretKey!, {});
     }
   }
 
-
   async checkout(userId: string, orderId: string) {
     let stripeIntent: any;
 
     const order = await firstValueFrom(
-      this.orderClient.send('get_order', orderId)
-    )
+      this.orderClient.send('get_order', orderId),
+    );
 
     if (!order) throw new NotFoundException('Order not found');
     if (this.isMock) {
@@ -50,15 +57,15 @@ export class PaymentsService {
         update: {
           stripePaymentId: mockPaymentId,
           status: 'PENDING',
-          amount: order.totalAmount
+          amount: order.totalAmount,
         },
         create: {
           orderId,
           userId,
           stripePaymentId: mockPaymentId,
           status: 'PENDING',
-          amount: order.totalAmount
-        }
+          amount: order.totalAmount,
+        },
       });
       return {
         clientSecret: 'mock_client_secret',
@@ -72,28 +79,27 @@ export class PaymentsService {
       metadata: { orderId },
       automatic_payment_methods: {
         enabled: true,
-        allow_redirects: 'never'
-      }
-    })
+        allow_redirects: 'never',
+      },
+    });
 
     await this.prisma.payment.upsert({
       where: { orderId },
       update: {
         stripePaymentId: stripeIntent.id,
         status: 'PENDING',
-        amount: order.totalAmount
+        amount: order.totalAmount,
       },
       create: {
         orderId,
         userId,
         stripePaymentId: stripeIntent.id,
         status: 'PENDING',
-        amount: order.totalAmount
-      }
+        amount: order.totalAmount,
+      },
     });
 
-    return { clientSecret: stripeIntent.client_secret }
-
+    return { clientSecret: stripeIntent.client_secret };
   }
 
   async handleWebhook(signature: string, rawBody: Buffer) {
@@ -103,7 +109,7 @@ export class PaymentsService {
       event = this.stripeService.webhooks.constructEvent(
         rawBody,
         signature,
-        this.stripeWebhookSecret
+        this.stripeWebhookSecret,
       );
     } catch (error: any) {
       throw new BadRequestException(`Webhook error: ${error.message}`);
@@ -111,10 +117,10 @@ export class PaymentsService {
 
     switch (event.type) {
       case 'payment_intent.succeeded':
-        const intent = event.data.object as any
+        const intent = event.data.object as any;
         await this.prisma.payment.update({
           where: { stripePaymentId: intent.id },
-          data: { status: 'SUCCEEDED' }
+          data: { status: 'SUCCEEDED' },
         });
         this.orderClient.emit('payment_succeeded', intent.metadata.orderId);
         break;
@@ -123,7 +129,7 @@ export class PaymentsService {
         const failedIntent = event.data.object as any;
         await this.prisma.payment.update({
           where: { stripePaymentId: failedIntent.id },
-          data: { status: 'FAILED' }
+          data: { status: 'FAILED' },
         });
         this.orderClient.emit('payment_failed', failedIntent.metadata.orderId);
         break;
@@ -150,19 +156,18 @@ export class PaymentsService {
 
     const paymentIntent = await this.stripeService.paymentIntents.confirm(
       paymentIntentId,
-      { payment_method: 'pm_card_visa' }
+      { payment_method: 'pm_card_visa' },
     );
 
     if (paymentIntent.status === 'succeeded') {
       const orderId = paymentIntent.metadata.orderId;
       await this.prisma.payment.update({
         where: { orderId },
-        data: { status: 'SUCCEEDED' }
+        data: { status: 'SUCCEEDED' },
       });
       this.orderClient.emit('payment_succeeded', orderId);
     }
 
     return { status: paymentIntent.status };
   }
-
 }

@@ -10,8 +10,15 @@ import { AuthService } from './auth/auth.service';
 import { LocalStrategy } from './auth/strategy/local.strategy';
 
 @Module({
-  imports: [ConfigModule.forRoot({isGlobal: true, envFilePath: 'apps/user-service/.env',},),
-    PrismaModule, UsersModule, AuthModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: 'apps/user-service/.env',
+    }),
+    PrismaModule,
+    UsersModule,
+    AuthModule,
+  ],
   controllers: [UserServiceController, AuthController],
   providers: [UserServiceService, AuthService, LocalStrategy],
 })

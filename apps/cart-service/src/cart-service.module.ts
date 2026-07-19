@@ -7,13 +7,16 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from '@app/auth';
 
 @Module({
-  imports: [ConfigModule.forRoot({
-    isGlobal: true, envFilePath: ['.env', 'apps/cart-service/.env']
-  }),
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env', 'apps/cart-service/.env'],
+    }),
     AuthModule,
     CartModule,
-    PrismaModule],
+    PrismaModule,
+  ],
   controllers: [CartServiceController],
   providers: [CartServiceService],
 })
-export class CartServiceModule { }
+export class CartServiceModule {}

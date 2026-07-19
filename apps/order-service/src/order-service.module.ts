@@ -7,11 +7,16 @@ import { AuthModule } from '@app/auth';
 import { OrdersModule } from './order/order.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env', 'apps/order-service/.env'] }),
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env', 'apps/order-service/.env'],
+    }),
     PrismaModule,
     AuthModule,
-    OrdersModule],
+    OrdersModule,
+  ],
   controllers: [OrderServiceController],
   providers: [OrderServiceService],
 })
-export class OrderServiceModule { }
+export class OrderServiceModule {}

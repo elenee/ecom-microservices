@@ -8,7 +8,7 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!adminPassword) throw new Error('ADMIN_PASSWORD is not set in .env')
+  if (!adminPassword) throw new Error('ADMIN_PASSWORD is not set in .env');
   const adminEmail = process.env.ADMIN_EMAIL!;
   const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
@@ -24,7 +24,7 @@ async function main() {
     },
   });
 
-  console.log(`Admin seeded: ${adminEmail}`)
+  console.log(`Admin seeded: ${adminEmail}`);
 }
 
 main()

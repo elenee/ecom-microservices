@@ -1,4 +1,8 @@
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { BadRequestException, Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -7,17 +11,15 @@ export class S3Service {
   private s3: S3Client;
 
   constructor() {
-    this.bucketName = process.env.AWS_BUCKET_NAME!
+    this.bucketName = process.env.AWS_BUCKET_NAME!;
     this.s3 = new S3Client({
       credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY!,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
       },
       region: process.env.AWS_REGION,
-    })
+    });
   }
-
-
 
   async uploadFile(key, buffer, contentType) {
     if (!key || !buffer)

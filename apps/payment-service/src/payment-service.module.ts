@@ -7,10 +7,16 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from '@app/auth';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env', 'apps/payment-service/.env'] }),
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env', 'apps/payment-service/.env'],
+    }),
     AuthModule,
-    PaymentsModule, PrismaModule],
+    PaymentsModule,
+    PrismaModule,
+  ],
   controllers: [PaymentServiceController],
   providers: [PaymentServiceService],
 })
-export class PaymentServiceModule { }
+export class PaymentServiceModule {}
