@@ -48,7 +48,7 @@ export class S3Service {
         Bucket: this.bucketName,
       });
       await this.s3.send(command);
-    } catch (error) {
+    } catch {
       throw new BadRequestException('failed to delete image');
     }
   }

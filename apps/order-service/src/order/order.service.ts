@@ -70,7 +70,7 @@ export class OrderService {
       0,
     );
 
-    const order = await this.prisma.$transaction(async (tx) => {
+    const order = await this.prisma.$transaction((tx) => {
       return tx.order.create({
         data: {
           userId,
@@ -152,7 +152,7 @@ export class OrderService {
   }
 
   async updatePaymentStatus(orderId: string, paymentStatus: PaymentStatus) {
-    return this.prisma.order.update({
+    return await this.prisma.order.update({
       where: { id: orderId },
       data: { paymentStatus },
     });

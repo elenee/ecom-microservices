@@ -43,8 +43,6 @@ export class PaymentsService {
   }
 
   async checkout(userId: string, orderId: string) {
-    let stripeIntent: any;
-
     const order = await firstValueFrom(
       this.orderClient.send('get_order', orderId),
     );
@@ -73,7 +71,7 @@ export class PaymentsService {
       };
     }
 
-    stripeIntent = await this.stripeService.paymentIntents.create({
+    const stripeIntent = await this.stripeService.paymentIntents.create({
       amount: Math.round(Number(order.totalAmount) * 100),
       currency: 'usd',
       metadata: { orderId },
@@ -116,23 +114,25 @@ export class PaymentsService {
     }
 
     switch (event.type) {
-      case 'payment_intent.succeeded':
-        const intent = event.data.object as any;
+      case 'payment_intent.succeeded': {
+        const intent = event.data.object;
         await this.prisma.payment.update({
           where: { stripePaymentId: intent.id },
           data: { status: 'SUCCEEDED' },
         });
         this.orderClient.emit('payment_succeeded', intent.metadata.orderId);
         break;
+      }
 
-      case 'payment_intent.payment_failed':
-        const failedIntent = event.data.object as any;
+      case 'payment_intent.payment_failed': {
+        const failedIntent = event.data.object;
         await this.prisma.payment.update({
           where: { stripePaymentId: failedIntent.id },
           data: { status: 'FAILED' },
         });
         this.orderClient.emit('payment_failed', failedIntent.metadata.orderId);
         break;
+      }
     }
 
     return { received: true };

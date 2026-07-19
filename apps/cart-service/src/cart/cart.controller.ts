@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { CartService } from './cart.service';

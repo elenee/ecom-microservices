@@ -39,7 +39,7 @@ export class UsersService {
       where: { id },
       data: updateUserDto,
     });
-    const { password, ...rest } = updatedUser;
+    const { password: _password, ...rest } = updatedUser;
     return rest;
   }
 

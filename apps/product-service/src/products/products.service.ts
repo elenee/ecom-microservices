@@ -59,15 +59,19 @@ export class ProductsService {
         e.code === 'P2002'
       ) {
         throw new ConflictException(
-          `Product with this ${e.meta?.target} already exists`,
+          `Product with this ${String(e.meta?.target)} already exists`,
         );
       }
       if (
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === 'P2003'
       ) {
+        const fieldName =
+          typeof e.meta?.field_name === 'string'
+            ? e.meta.field_name
+            : 'related entity';
         throw new BadRequestException(
-          `Invalid reference: ${e.meta?.field_name ?? 'related entity'} does not exist`,
+          `Invalid reference: ${fieldName} does not exist`,
         );
       }
       throw e;

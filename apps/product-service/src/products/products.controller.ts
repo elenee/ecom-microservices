@@ -155,7 +155,7 @@ export class ProductsController {
   }
 
   @MessagePattern('restock')
-  async restock(@Payload() data: { productId: string; quantity: number }) {
+  restock(@Payload() data: { productId: string; quantity: number }) {
     return this.prisma.product.update({
       where: { id: data.productId },
       data: { stock: { increment: data.quantity } },

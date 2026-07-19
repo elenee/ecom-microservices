@@ -57,7 +57,7 @@ export class AuthService {
   async currentUser(userId: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
-    const { password, ...rest } = user;
+    const { password: _password, ...rest } = user;
     return rest;
   }
 
@@ -114,7 +114,7 @@ export class AuthService {
       const payload = this.jwtService.verify(refreshToken);
       await this.prisma.refreshToken.delete({ where: { jti: payload.jti } });
       return 'signed out successfully';
-    } catch (error) {
+    } catch {
       const decoded = this.jwtService.decode(refreshToken);
       if (decoded && decoded['jti']) {
         await this.prisma.refreshToken.deleteMany({

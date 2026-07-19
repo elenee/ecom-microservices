@@ -91,7 +91,7 @@ export class CategoriesService {
     if (!category) throw new NotFoundException('Category not found');
 
     if (image) {
-      let resizedBuffer = await sharp(image.buffer)
+      const resizedBuffer = await sharp(image.buffer)
         .resize(800, 600, {
           fit: 'cover',
           position: 'center',
