@@ -59,4 +59,9 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
+      - name: Generate Prisma client
+        run: |
+          if [ -f apps/${{ matrix.service }}/prisma/schema.prisma ]; then
+            npx prisma generate --schema=apps/${{ matrix.service }}/prisma/schema.prisma
+          fi
       - run: npx nest build ${{ matrix.service }}
